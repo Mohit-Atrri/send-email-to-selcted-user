@@ -1,0 +1,90 @@
+// Home.php
+
+<h2>PHP Form Validation Example</h2>
+
+<form method="post"  action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">  
+
+   <label for="exampleFormControlSelect1">User</label>
+    <select class="form-control" id="userid" >
+      <?php  $users = get_users();
+
+      foreach ( $users as $user ) {
+      $userEmail = $user->user_email;
+
+      ?> 
+      <option value="<?php echo ($user->ID); ?>"><?php echo ($user->user_nicename); ?></option>
+      <?php  } 
+      ?>
+    </select>
+   <br><br>
+    Subject: <input type="text" name="website" value="<?php echo $website;?>" id="webid">
+    <!-- <span class="error"><?php echo $websiteErr;?></span> --> 
+    <br><br>
+  Comment: <textarea name="comment" rows="5" cols="40" id="comid"><?php echo $comment;?></textarea>
+ 
+<br>
+  <input type="button" name="submit" value="Submit" class="btn">  
+</form>
+
+<?php 
+	get_footer();
+?>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+  $(".btn").click(function(){
+  var emailId = $('#emailid').val();
+  var webId = $('#webid').val();
+  var comId = $('#comid').val();
+  var userId = $('option:selected').val();
+// alert(userId);
+   $.ajax({ 
+                url: "/wp-admin/admin-ajax.php",
+                  type: "POST",  
+               // url: "updatedjob.php",
+                data:{ 
+                    'action': 'addToCartKeys',
+                    'emailId': emailId,
+                    'webId': webId,
+                    'comId': comId,
+                    'userId': userId
+                  },
+                success: function(result){  
+                     // console.log('checkresult'+result);
+                         var text = result; 
+                          alert(text);
+                    if(result == 10){
+                      $("form").after("<p>Email send successfully !!</p>");
+                    }else{
+                      alert('not come');
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                    alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+                }      
+            });
+
+  });
+   });
+</script>
+
+//Function
+
+add_action('wp_ajax_addToCartKeys', 'addToCartKeys');
+add_action('wp_ajax_nopriv_addToCartKeys', 'addToCartKeys');
+function addToCartKeys() {  
+
+        $emailId      = $_REQUEST['emailId'];
+        $webId      = $_REQUEST['webId']; 
+        $comId       = $_REQUEST['comId'];
+        $userId       = $_REQUEST['userId'];
+          $user_info = get_userdata($userId);
+          $mailadresje = $user_info->user_email;
+ // echo $mailadresje;
+       $send =  wp_mail( $mailadresje, $webId, $comId);
+       if ($send) {
+            echo 1;
+       }else{
+         echo 0;
+       }
+        }
